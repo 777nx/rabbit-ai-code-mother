@@ -22,21 +22,56 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'userAvatar'">
-          <a-image :src="record.userAvatar" :width="120" />
-        </template>
-        <template v-else-if="column.dataIndex === 'userRole'">
-          <div v-if="record.userRole === 'admin'">
-            <a-tag color="green">管理员</a-tag>
+          <div v-if="editableData[record.id]">
+            <a-input v-model:value="editableData[record.id].userAvatar" placeholder="输入头像URL" />
           </div>
           <div v-else>
-            <a-tag color="blue">普通用户</a-tag>
+            <a-image :src="record.userAvatar" :width="120" />
+          </div>
+        </template>
+        <template v-else-if="column.dataIndex === 'userRole'">
+          <div v-if="editableData[record.id]">
+            <a-select v-model:value="editableData[record.id].userRole" style="width: 120px">
+              <a-select-option value="user">普通用户</a-select-option>
+              <a-select-option value="admin">管理员</a-select-option>
+            </a-select>
+          </div>
+          <div v-else>
+            <a-tag :color="record.userRole === 'admin' ? 'green' : 'blue'">
+              {{ record.userRole === 'admin' ? '管理员' : '普通用户' }}
+            </a-tag>
           </div>
         </template>
         <template v-else-if="column.dataIndex === 'createTime'">
           {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}
         </template>
         <template v-else-if="column.key === 'action'">
-          <a-button danger @click="doDelete(record.id)">删除</a-button>
+          <div v-if="editableData[record.id]">
+            <a-space>
+              <a-button type="link" @click="save(record.id)">保存</a-button>
+              <a-button type="link" @click="cancel(record.id)">取消</a-button>
+            </a-space>
+          </div>
+          <div v-else>
+            <a-button type="link" @click="edit(record.id)">编辑</a-button>
+            <a-button danger @click="doDelete(record.id)">删除</a-button>
+          </div>
+        </template>
+        <template v-else-if="column.dataIndex === 'userName'">
+          <div v-if="editableData[record.id]">
+            <a-input v-model:value="editableData[record.id].userName" />
+          </div>
+          <div v-else>
+            {{ record.userName }}
+          </div>
+        </template>
+        <template v-else-if="column.dataIndex === 'userProfile'">
+          <div v-if="editableData[record.id]">
+            <a-input v-model:value="editableData[record.id].userProfile" />
+          </div>
+          <div v-else>
+            {{ record.userProfile }}
+          </div>
         </template>
       </template>
     </a-table>
@@ -44,9 +79,10 @@
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { deleteUser, listUserVoByPage } from '@/api/userController.ts'
+import { deleteUser, listUserVoByPage, updateUser } from '@/api/userController.ts'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
+import { cloneDeep } from 'lodash'
 
 // 展示的列
 const columns = [
@@ -133,7 +169,7 @@ const doSearch = async () => {
 }
 
 // 删除数据
-const doDelete = async (id: string) => {
+const doDelete = async (id: number) => {
   if (!id) {
     return
   }
@@ -145,6 +181,36 @@ const doDelete = async (id: string) => {
   } else {
     message.error('删除失败：' + res.data.message)
   }
+}
+
+// 编辑表单
+const editableData = reactive<Record<string, API.UserVO>>({})
+
+// 编辑操作
+const edit = (key: number) => {
+  editableData[key] = cloneDeep(data.value.filter((item) => key === item.id)[0])
+}
+
+// 保存操作
+const save = async (key: number) => {
+  const editedUser = editableData[key]
+  if (!editedUser) {
+    message.error('编辑失败：用户数据不存在')
+    return
+  }
+  const res = await updateUser(editedUser)
+  if (res.data.code === 0) {
+    message.success('更新成功')
+    Object.assign(data.value.filter((item) => key === item.id)[0], editedUser)
+    delete editableData[key]
+  } else {
+    message.error('更新失败：' + res.data.message)
+  }
+}
+
+// 取消操作
+const cancel = (key: number) => {
+  delete editableData[key]
 }
 
 // 页面加载时请求一次
