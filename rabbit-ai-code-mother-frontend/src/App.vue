@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import BasicLayout from '@/layouts/BasicLayout.vue'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import { useLoginUserStore } from '@/stores/loginUser.ts'
 
-import { healthCheck } from '@/api/healthController.ts'
+dayjs.locale('zh-cn')
 
-import zhCN from 'ant-design-vue/es/locale/zh_CN';
-import dayjs from 'dayjs';
-import 'dayjs/locale/zh-cn';
-dayjs.locale('zh-cn');
-
-healthCheck().then((res) => {
-  console.log(res)
-})
+const loginUserStore = useLoginUserStore()
+loginUserStore.fetchLoginUser()
 </script>
 
 <template>
