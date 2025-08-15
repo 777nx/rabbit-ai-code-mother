@@ -1,0 +1,27 @@
+package com.fantasy.rabbitaicodemother.ai;
+
+import com.fantasy.rabbitaicodemother.ai.model.HtmlCodeResult;
+import com.fantasy.rabbitaicodemother.ai.model.MultiFileCodeResult;
+import jakarta.annotation.Resource;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class AiCodeGeneratorServiceTest {
+
+    @Resource
+    private AiCodeGeneratorService aiCodeGeneratorService;
+
+    @Test
+    void generatorHtmlCode() {
+        HtmlCodeResult result = aiCodeGeneratorService.generatorHtmlCode("做个Fantasy的博客，不超过 20 行");
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void generatorMultiFileCode() {
+        MultiFileCodeResult result = aiCodeGeneratorService.generatorMultiFileCode("做个Fantasy的留言板，不超过 20 行");
+        Assertions.assertNotNull(result);
+    }
+}
