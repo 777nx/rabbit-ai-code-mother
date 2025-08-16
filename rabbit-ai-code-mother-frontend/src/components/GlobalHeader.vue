@@ -87,6 +87,11 @@ const originItems = [
     title: '应用管理',
   },
   {
+    key: '/admin/chatManage',
+    label: '对话管理',
+    title: '对话管理',
+  },
+  {
     key: 'others',
     label: h('a', { href: 'https://www.777nx.cn', target: '_blank' }, '贝果研究家'),
     title: '贝果研究家',
