@@ -1,7 +1,6 @@
 package com.fantasy.rabbitaicodemother.core.saver;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fantasy.rabbitaicodemother.exception.BusinessException;
 import com.fantasy.rabbitaicodemother.exception.ErrorCode;
@@ -66,7 +65,7 @@ public abstract class CodeFileSaverTemplate<T> {
     }
 
     /**
-     * 构建文件的唯一路径：tmp/code_output/bizType_雪花 ID
+     * 构建文件的唯一路径：tmp/code_output/bizType_应用 ID
      * @param appId 应用 ID
      * @return 目录路径
      */
@@ -75,7 +74,7 @@ public abstract class CodeFileSaverTemplate<T> {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
         }
         String codeType = getCodeType().getValue();
-        String uniqueDirName = StrUtil.format("{}_{}", codeType, IdUtil.getSnowflakeNextIdStr());
+        String uniqueDirName = StrUtil.format("{}_{}", codeType, appId);
         String dirPath = FILE_SAVE_ROOT_DIR + File.separator + uniqueDirName;
         FileUtil.mkdir(dirPath);
         return dirPath;
