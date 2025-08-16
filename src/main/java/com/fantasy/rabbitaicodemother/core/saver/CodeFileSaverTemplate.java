@@ -2,6 +2,7 @@ package com.fantasy.rabbitaicodemother.core.saver;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.fantasy.rabbitaicodemother.constant.AppConstant;
 import com.fantasy.rabbitaicodemother.exception.BusinessException;
 import com.fantasy.rabbitaicodemother.exception.ErrorCode;
 import com.fantasy.rabbitaicodemother.model.enums.CodeGenTypeEnum;
@@ -19,7 +20,7 @@ public abstract class CodeFileSaverTemplate<T> {
     /**
      * 文件保存的根目录
      */
-    public static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/tmp/code_output";
+    public static final String FILE_SAVE_ROOT_DIR = AppConstant.CODE_OUTPUT_ROOT_DIR;
 
     /**
      * 模板方法，保存代码的标准流程

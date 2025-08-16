@@ -12,10 +12,7 @@ import com.fantasy.rabbitaicodemother.constant.UserConstant;
 import com.fantasy.rabbitaicodemother.exception.BusinessException;
 import com.fantasy.rabbitaicodemother.exception.ErrorCode;
 import com.fantasy.rabbitaicodemother.exception.ThrowUtils;
-import com.fantasy.rabbitaicodemother.model.dto.app.AppAddRequest;
-import com.fantasy.rabbitaicodemother.model.dto.app.AppAdminUpdateRequest;
-import com.fantasy.rabbitaicodemother.model.dto.app.AppQueryRequest;
-import com.fantasy.rabbitaicodemother.model.dto.app.AppUpdateRequest;
+import com.fantasy.rabbitaicodemother.model.dto.app.*;
 import com.fantasy.rabbitaicodemother.model.entity.User;
 import com.fantasy.rabbitaicodemother.model.enums.CodeGenTypeEnum;
 import com.fantasy.rabbitaicodemother.model.vo.AppVO;
@@ -61,8 +58,8 @@ public class AppController {
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
-                                      @RequestParam String message,
-                                      HttpServletRequest request) {
+                                                       @RequestParam String message,
+                                                       HttpServletRequest request) {
         // 参数校验
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 id 错误");
         ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "提示词不能为空");
@@ -85,6 +82,25 @@ public class AppController {
                                 .data("")
                                 .build()
                 ));
+    }
+
+    /**
+     * 应用部署
+     *
+     * @param appDeployRequest 部署请求
+     * @param request          请求
+     * @return 部署 URL
+     */
+    @PostMapping("/deploy")
+    public BaseResponse<String> deployApp(@RequestBody AppDeployRequest appDeployRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(appDeployRequest == null, ErrorCode.PARAMS_ERROR);
+        Long appId = appDeployRequest.getAppId();
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 调用服务部署应用
+        String deployUrl = appService.deployApp(appId, loginUser);
+        return ResultUtils.success(deployUrl);
     }
 
     /**
