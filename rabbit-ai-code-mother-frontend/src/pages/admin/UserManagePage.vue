@@ -26,7 +26,9 @@
             <a-input v-model:value="editableData[record.id].userAvatar" placeholder="输入头像URL" />
           </div>
           <div v-else>
-            <a-image :src="record.userAvatar" :width="120" />
+            <a-avatar :src="record.userAvatar">
+              {{ record.userName?.charAt(0) || 'U' }}
+            </a-avatar>
           </div>
         </template>
         <template v-else-if="column.dataIndex === 'userRole'">
@@ -155,13 +157,13 @@ const pagination = computed(() => {
 })
 
 // 表格分页变化时的操作
-const doTableChange = (page: any) => {
+const doTableChange = (page: { current: number; pageSize: number }) => {
   searchParams.pageNum = page.current
   searchParams.pageSize = page.pageSize
   fetchData()
 }
 
-// 搜索
+// 搜索数据
 const doSearch = async () => {
   // 重置页码
   searchParams.pageNum = 1
@@ -221,6 +223,8 @@ onMounted(() => {
 
 <style scoped>
 #userManagePage {
-  width: 1200px;
+  padding: 24px;
+  background: white;
+  margin-top: 16px;
 }
 </style>
