@@ -19,7 +19,7 @@ public interface AiCodeGeneratorService {
      * @return AI 的输出结果
      */
     @SystemMessage(fromResource = "prompt/codegen-html-system-prompt.txt")
-    HtmlCodeResult generatorHtmlCode(String userMessage);
+    HtmlCodeResult generateHtmlCode(String userMessage);
 
     /**
      * 生成多文件代码
@@ -28,7 +28,7 @@ public interface AiCodeGeneratorService {
      * @return AI 的输出结果
      */
     @SystemMessage(fromResource = "prompt/codegen-multi-file-system-prompt.txt")
-    MultiFileCodeResult generatorMultiFileCode(String userMessage);
+    MultiFileCodeResult generateMultiFileCode(String userMessage);
 
     /**
      * 生成 HTML 代码（流式）
@@ -37,7 +37,7 @@ public interface AiCodeGeneratorService {
      * @return AI 的输出结果
      */
     @SystemMessage(fromResource = "prompt/codegen-html-system-prompt.txt")
-    Flux<String> generatorHtmlCodeStream(String userMessage);
+    Flux<String> generateHtmlCodeStream(String userMessage);
 
     /**
      * 生成多文件代码（流式）
@@ -46,7 +46,7 @@ public interface AiCodeGeneratorService {
      * @return AI 的输出结果
      */
     @SystemMessage(fromResource = "prompt/codegen-multi-file-system-prompt.txt")
-    Flux<String> generatorMultiFileCodeStream(String userMessage);
+    Flux<String> generateMultiFileCodeStream(String userMessage);
 
     /**
      * 生成 Vue 项目代码（流式）
@@ -55,5 +55,5 @@ public interface AiCodeGeneratorService {
      * @return AI 的输出结果
      */
     @SystemMessage(fromResource = "prompt/codegen-vue-project-system-prompt.txt")
-    Flux<String> generatorVueProjectCodeStream(@MemoryId long appId, @UserMessage String userMessage);
+    Flux<String> generateVueProjectCodeStream(@MemoryId long appId, @UserMessage String userMessage);
 }

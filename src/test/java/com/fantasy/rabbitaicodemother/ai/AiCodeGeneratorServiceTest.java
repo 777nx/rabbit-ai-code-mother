@@ -14,26 +14,26 @@ class AiCodeGeneratorServiceTest {
     private AiCodeGeneratorService aiCodeGeneratorService;
 
     @Test
-    void generatorHtmlCode() {
-        HtmlCodeResult result = aiCodeGeneratorService.generatorHtmlCode("做个Fantasy的博客，不超过 20 行");
+    void generateHtmlCode() {
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode("做个Fantasy的博客，不超过 20 行");
         Assertions.assertNotNull(result);
     }
 
     @Test
-    void generatorMultiFileCode() {
-        MultiFileCodeResult result = aiCodeGeneratorService.generatorMultiFileCode("做个Fantasy的留言板，不超过 20 行");
+    void generateMultiFileCode() {
+        MultiFileCodeResult result = aiCodeGeneratorService.generateMultiFileCode("做个Fantasy的留言板，不超过 20 行");
         Assertions.assertNotNull(result);
     }
 
     @Test
     void testChatMemory() {
-        HtmlCodeResult result = aiCodeGeneratorService.generatorHtmlCode("做个Fantasy的工具网站，总代码量不超过 20 行");
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode("做个Fantasy的工具网站，总代码量不超过 20 行");
         Assertions.assertNotNull(result);
-        result = aiCodeGeneratorService.generatorHtmlCode("不要生成网站，告诉我你刚刚做了什么？");
+        result = aiCodeGeneratorService.generateHtmlCode("不要生成网站，告诉我你刚刚做了什么？");
         Assertions.assertNotNull(result);
-        result = aiCodeGeneratorService.generatorHtmlCode("做个Fantasy的工具网站，总代码量不超过 20 行");
+        result = aiCodeGeneratorService.generateHtmlCode("做个Fantasy的工具网站，总代码量不超过 20 行");
         Assertions.assertNotNull(result);
-        result = aiCodeGeneratorService.generatorHtmlCode("不要生成网站，告诉我你刚刚做了什么？");
+        result = aiCodeGeneratorService.generateHtmlCode("不要生成网站，告诉我你刚刚做了什么？");
         Assertions.assertNotNull(result);
     }
 }
