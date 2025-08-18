@@ -1,6 +1,6 @@
 package com.fantasy.rabbitaicodemother.ai;
 
-import com.fantasy.rabbitaicodemother.ai.tools.FileWriteTool;
+import com.fantasy.rabbitaicodemother.ai.tools.*;
 import com.fantasy.rabbitaicodemother.exception.BusinessException;
 import com.fantasy.rabbitaicodemother.exception.ErrorCode;
 import com.fantasy.rabbitaicodemother.model.enums.CodeGenTypeEnum;
@@ -41,6 +41,9 @@ public class AiCodeGeneratorServiceFactory {
 
     @Resource
     private ChatHistoryService chatHistoryService;
+
+    @Resource
+    private ToolManager toolManager;
 
     /**
      * AI 服务实例缓存
@@ -104,7 +107,7 @@ public class AiCodeGeneratorServiceFactory {
                     .chatModel(chatModel)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memory -> chatMemory)
-                    .tools(new FileWriteTool())
+                    .tools(toolManager.getAllTools())
                     // 处理工具调用幻觉问题
                     .hallucinatedToolNameStrategy(toolExecutionRequest ->
                             ToolExecutionResultMessage.from(toolExecutionRequest,
