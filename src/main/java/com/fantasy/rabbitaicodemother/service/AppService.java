@@ -1,5 +1,6 @@
 package com.fantasy.rabbitaicodemother.service;
 
+import com.fantasy.rabbitaicodemother.model.dto.app.AppAddRequest;
 import com.fantasy.rabbitaicodemother.model.dto.app.AppQueryRequest;
 import com.fantasy.rabbitaicodemother.model.entity.User;
 import com.fantasy.rabbitaicodemother.model.vo.AppVO;
@@ -26,6 +27,15 @@ public interface AppService extends IService<App> {
      * @return 应用代码
      */
     Flux<String> chatToGenCode(Long appId, String message, User loginUser);
+
+    /**
+     * 创建应用
+     *
+     * @param appAddRequest 应用创建请求
+     * @param loginUser     登录用户
+     * @return 应用 ID
+     */
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 
     /**
      * 应用部署
