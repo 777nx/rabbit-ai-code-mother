@@ -44,7 +44,7 @@ public class CosManager {
     public String uploadFile(String key, File file) {
         PutObjectResult result = putObject(key, file);
         if (result != null) {
-            String url = String.format("%s%s", cosClientConfig.getHost(), key);
+            String url = String.format("%s/%s", cosClientConfig.getHost(), key);
             log.info("文件上传到 COS 成功：{} -> {}", file.getName(), url);
             return url;
         } else {
