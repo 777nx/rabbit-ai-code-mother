@@ -1,6 +1,8 @@
 package com.fantasy.rabbitaicodemother.service;
 
 import com.fantasy.rabbitaicodemother.model.dto.user.UserQueryRequest;
+import com.fantasy.rabbitaicodemother.model.dto.user.UserRegisterRequest;
+import com.fantasy.rabbitaicodemother.model.dto.user.UserResetPasswordRequest;
 import com.fantasy.rabbitaicodemother.model.vo.LoginUserVO;
 import com.fantasy.rabbitaicodemother.model.vo.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -20,12 +22,10 @@ public interface UserService extends IService<User> {
     /**
      * 用户注册
      *
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 校验密码
+     * @param userRegisterRequest 用户注册请求
      * @return 新用户 id
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(UserRegisterRequest userRegisterRequest);
 
     /**
      * 获取脱敏的已登录用户信息
@@ -43,6 +43,14 @@ public interface UserService extends IService<User> {
      * @return 脱敏后的用户信息
      */
     LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    /**
+     * 用户重置密码
+     *
+     * @param userResetPasswordRequest 用户重置密码请求
+     * @return 重置密码是否成功
+     */
+    boolean userResetPassword(UserResetPasswordRequest userResetPasswordRequest);
 
     /**
      * 获取当前登录用户

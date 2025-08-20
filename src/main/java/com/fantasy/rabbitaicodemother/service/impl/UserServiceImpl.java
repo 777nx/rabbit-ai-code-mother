@@ -6,14 +6,18 @@ import cn.hutool.core.util.StrUtil;
 import com.fantasy.rabbitaicodemother.exception.BusinessException;
 import com.fantasy.rabbitaicodemother.exception.ErrorCode;
 import com.fantasy.rabbitaicodemother.model.dto.user.UserQueryRequest;
+import com.fantasy.rabbitaicodemother.model.dto.user.UserRegisterRequest;
+import com.fantasy.rabbitaicodemother.model.dto.user.UserResetPasswordRequest;
 import com.fantasy.rabbitaicodemother.model.enums.UserRoleEnum;
 import com.fantasy.rabbitaicodemother.model.vo.LoginUserVO;
 import com.fantasy.rabbitaicodemother.model.vo.UserVO;
+import com.fantasy.rabbitaicodemother.service.EmailService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.fantasy.rabbitaicodemother.model.entity.User;
 import com.fantasy.rabbitaicodemother.mapper.UserMapper;
 import com.fantasy.rabbitaicodemother.service.UserService;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -33,10 +37,18 @@ import static com.fantasy.rabbitaicodemother.constant.UserConstant.USER_LOGIN_ST
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    @Resource
+    private EmailService emailService;
+
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(UserRegisterRequest userRegisterRequest) {
         // 1. 校验参数
-        if (StrUtil.hasBlank(userAccount, userPassword, checkPassword)) {
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userEmail = userRegisterRequest.getUserEmail();
+        String code = userRegisterRequest.getCode();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        if (StrUtil.hasBlank(userAccount, userEmail, code, userPassword, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
         if (userAccount.length() < 4) {
@@ -51,6 +63,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
+        if (!emailService.isValidEmail(userEmail)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式错误");
+        }
+        if (!emailService.verifyCode(userEmail, code)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
         // 2. 查询用户是否已存在
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("userAccount", userAccount);
@@ -58,11 +76,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (count > 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
         }
-        // 3. 加密密码
+        // 3. 查询邮箱是否已存在
+        queryWrapper = new QueryWrapper();
+        queryWrapper.eq("userEmail", userEmail);
+        count = this.mapper.selectCountByQuery(queryWrapper);
+        if (count > 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱重复");
+        }
+        // 4. 加密密码
         String encryptPassword = getEncryptPassword(userPassword);
-        // 4. 创建用户，插入数据库
+        // 5. 创建用户，插入数据库
         User user = new User();
         user.setUserAccount(userAccount);
+        user.setUserEmail(userEmail); // 设置邮箱
         user.setUserPassword(encryptPassword);
         user.setUserName("无名");
         user.setUserRole(UserRoleEnum.USER.getValue());
@@ -102,7 +128,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String encryptPassword = getEncryptPassword(userPassword);
         // 3. 查询用户是否存在
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("userAccount", userAccount);
+        if (emailService.isValidEmail(userAccount)) {
+            queryWrapper.eq("userEmail", userAccount);
+        } else {
+            queryWrapper.eq("userAccount", userAccount);
+        }
         queryWrapper.eq("userPassword", encryptPassword);
         User user = this.mapper.selectOneByQuery(queryWrapper);
         if (user == null) {
@@ -112,6 +142,46 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         // 5. 返回脱敏后的用户信息
         return this.getLoginUserVO(user);
+    }
+
+    @Override
+    public boolean userResetPassword(UserResetPasswordRequest userResetPasswordRequest) {
+        // 1. 校验参数
+        String userEmail = userResetPasswordRequest.getUserEmail();
+        String code = userResetPasswordRequest.getCode();
+        String newPassword = userResetPasswordRequest.getNewPassword();
+        String checkPassword = userResetPasswordRequest.getCheckPassword();
+        if (StrUtil.hasBlank(userEmail, code, newPassword, checkPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+        }
+        if (newPassword.length() < 8 || checkPassword.length() < 8) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码长度过短");
+        }
+        if (newPassword.length() > 16 || checkPassword.length() > 16) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码长度过长");
+        }
+        if (!newPassword.equals(checkPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次密码不一致");
+        }
+        // 2. 校验邮箱和验证码
+        if (!emailService.isValidEmail(userEmail)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式不正确");
+        }
+        if (!emailService.verifyCode(userEmail, code)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
+        // 3. 查询用户是否存在
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("userEmail", userEmail);
+        User user = this.getOne(queryWrapper);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在");
+        }
+        // 4. 加密新密码
+        String encryptPassword = getEncryptPassword(newPassword);
+        // 5. 更新数据库
+        user.setUserPassword(encryptPassword);
+        return this.updateById(user);
     }
 
     @Override
@@ -170,6 +240,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         Long id = userQueryRequest.getId();
         String userAccount = userQueryRequest.getUserAccount();
+        String userEmail = userQueryRequest.getUserEmail();
         String userName = userQueryRequest.getUserName();
         String userProfile = userQueryRequest.getUserProfile();
         String userRole = userQueryRequest.getUserRole();
@@ -179,6 +250,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .eq("id", id) // where id = ${id}
                 .eq("userRole", userRole) // and userRole = ${userRole}
                 .like("userAccount", userAccount)
+                .like("userEmail", userEmail) // 添加邮箱字段
                 .like("userName", userName)
                 .like("userProfile", userProfile)
                 .orderBy(sortField, "ascend".equals(sortOrder));

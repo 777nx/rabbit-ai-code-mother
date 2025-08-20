@@ -16,6 +16,7 @@ create table if not exists user
 (
     id           bigint auto_increment comment 'id' primary key,
     userAccount  varchar(256)                           not null comment '账号',
+    userEmail varchar(256) not null comment '邮箱',
     userPassword varchar(512)                           not null comment '密码',
     userName     varchar(256)                           null comment '用户昵称',
     userAvatar   varchar(1024)                          null comment '用户头像',
@@ -26,6 +27,7 @@ create table if not exists user
     updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete     tinyint      default 0                 not null comment '是否删除',
     UNIQUE KEY uk_userAccount (userAccount),
+    UNIQUE KEY uk_userEmail (userEmail),
     INDEX idx_userName (userName)
 ) comment '用户' collate = utf8mb4_unicode_ci;
 
