@@ -114,6 +114,21 @@ export async function userRegister(
   })
 }
 
+/** 此处后端没有提供注释 POST /user/resetPassword */
+export async function userResetPassword(
+  body: API.UserResetPasswordRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseBoolean>('/user/resetPassword', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 此处后端没有提供注释 POST /user/update */
 export async function updateUser(body: API.UserUpdateRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/user/update', {

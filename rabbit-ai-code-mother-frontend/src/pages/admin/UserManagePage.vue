@@ -97,6 +97,10 @@ const columns = [
     dataIndex: 'userAccount',
   },
   {
+    title: '邮箱',
+    dataIndex: 'userEmail',
+  },
+  {
     title: '用户名',
     dataIndex: 'userName',
   },

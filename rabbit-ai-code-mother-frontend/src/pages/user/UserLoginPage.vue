@@ -3,8 +3,8 @@
     <h2 class="title">兔子 AI 应用生成 - 用户登录</h2>
     <div class="desc">不写一行代码，生成完整应用</div>
     <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
-      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
-        <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
+      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号或邮箱' }]">
+        <a-input v-model:value="formState.userAccount" placeholder="请输入账号或邮箱" />
       </a-form-item>
 
       <a-form-item
@@ -23,8 +23,15 @@
       </a-form-item>
 
       <div class="tips">
-        没有账号？
-        <RouterLink to="/user/register">去注册</RouterLink>
+        <a-row justify="space-between">
+          <a-col>
+            <RouterLink to="/user/resetPassword">忘记密码？</RouterLink>
+          </a-col>
+          <a-col>
+            没有账号？
+            <RouterLink to="/user/register">去注册</RouterLink>
+          </a-col>
+        </a-row>
       </div>
 
       <a-form-item>

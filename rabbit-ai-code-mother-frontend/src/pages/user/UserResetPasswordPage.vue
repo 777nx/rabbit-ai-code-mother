@@ -1,15 +1,15 @@
 <template>
-  <div id="userRegisterPage">
-    <h2 class="title">兔子 AI 应用生成 - 用户注册</h2>
+  <div id="userResetPasswordPage">
+    <h2 class="title">兔子 AI 应用生成 - 重置密码</h2>
     <div class="desc">不写一行代码，生成完整应用</div>
     <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
-      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
-        <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
-      </a-form-item>
-      <a-form-item name="userEmail" :rules="[
-        { required: true, message: '请输入邮箱' },
-        { type: 'email', message: '请输入正确的邮箱格式' },
-      ]">
+      <a-form-item
+        name="userEmail"
+        :rules="[
+          { required: true, message: '请输入邮箱' },
+          { type: 'email', message: '请输入正确的邮箱格式' },
+        ]"
+      >
         <a-input v-model:value="formState.userEmail" placeholder="请输入邮箱" />
       </a-form-item>
       <a-form-item
@@ -28,16 +28,16 @@
         </a-input>
       </a-form-item>
       <a-form-item
-        name="userPassword"
+        name="newPassword"
         :rules="[
-          { required: true, message: '请输入密码' },
+          { required: true, message: '请输入新密码' },
           { min: 8, message: '密码不能小于 8 位' },
           { max: 16, message: '密码不能大于 16 位' },
         ]"
       >
         <a-input-password
-          v-model:value="formState.userPassword"
-          placeholder="请输入密码"
+          v-model:value="formState.newPassword"
+          placeholder="请输入新密码"
           autocomplete
         />
       </a-form-item>
@@ -57,11 +57,19 @@
         />
       </a-form-item>
       <div class="tips">
-        已有账号？
-        <RouterLink to="/user/login">去登录</RouterLink>
+        <a-row justify="space-between">
+          <a-col>
+            没有账号？
+            <RouterLink to="/user/register">去注册</RouterLink>
+          </a-col>
+          <a-col>
+            已有账号？
+            <RouterLink to="/user/login">去登录</RouterLink>
+          </a-col>
+        </a-row>
       </div>
       <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 100%">注册</a-button>
+        <a-button type="primary" html-type="submit" style="width: 100%">重置密码</a-button>
       </a-form-item>
     </a-form>
   </div>
@@ -69,25 +77,24 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { userRegister } from '@/api/userController.ts'
-import { sendVerificationCode } from '@/api/emailController.ts'
+import { userResetPassword } from '@/api/userController'
+import { sendVerificationCode } from '@/api/emailController'
 import { message } from 'ant-design-vue'
 import { computed, onBeforeUnmount, reactive } from 'vue'
 import { ref } from 'vue'
 
 const router = useRouter()
 
-const formState = reactive<API.UserRegisterRequest>({
-  userAccount: '',
-  userPassword: '',
-  checkPassword: '',
+const formState = reactive<API.UserResetPasswordRequest>({
   userEmail: '',
   code: '',
+  newPassword: '',
+  checkPassword: '',
 })
 
 const loading = ref<boolean>(false)
 const countdown = ref(0)
-let timer = null
+let timer: NodeJS.Timeout | null = null
 
 // 按钮文本
 const buttonText = computed(() => {
@@ -101,25 +108,31 @@ const doSendEmail = async () => {
   loading.value = true
   // 校验
   if (!formState.userEmail) {
+    message.error('请输入邮箱')
     loading.value = false
     return
   }
-  const res = await sendVerificationCode({
-    email: formState.userEmail,
-  })
-  if (res.data.code === 0) {
-    message.success('验证码已发送，请注意查收')
-    countdown.value = 60
-    timer = setInterval(() => {
-      countdown.value--
-      if (countdown.value <= 0) {
-        clearInterval(timer)
-      }
-    }, 1000)
-  } else {
-    message.error('发送验证码失败：' + res.data.message)
+  try {
+    const res = await sendVerificationCode({
+      email: formState.userEmail,
+    })
+    if (res.data.code === 0) {
+      message.success('验证码已发送，请注意查收')
+      countdown.value = 60
+      timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          clearInterval(timer!)
+        }
+      }, 1000)
+    } else {
+      message.error('发送验证码失败：' + res.data.message)
+    }
+  } catch (error: any) {
+    message.error('发送验证码失败：' + error.message)
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 
 // 组件卸载前清除定时器
@@ -134,7 +147,7 @@ onBeforeUnmount(() => {
  * @param callback
  */
 const validateCheckPassword = (rule: unknown, value: string, callback: (error?: Error) => void) => {
-  if (value && value !== formState.userPassword) {
+  if (value && value !== formState.newPassword) {
     callback(new Error('两次输入密码不一致'))
   } else {
     callback()
@@ -145,23 +158,26 @@ const validateCheckPassword = (rule: unknown, value: string, callback: (error?: 
  * 提交表单
  * @param values
  */
-const handleSubmit = async (values: API.UserRegisterRequest) => {
-  const res = await userRegister(values)
-  // 注册成功，跳转到登录页面
-  if (res.data.code === 0) {
-    message.success('注册成功')
-    router.push({
-      path: '/user/login',
-      replace: true,
-    })
-  } else {
-    message.error('注册失败，' + res.data.message)
+const handleSubmit = async (values: API.UserResetPasswordRequest) => {
+  try {
+    const res = await userResetPassword(values)
+    if (res.data.code === 0) {
+      message.success('密码重置成功')
+      router.push({
+        path: '/user/login',
+        replace: true,
+      })
+    } else {
+      message.error('密码重置失败，' + res.data.message)
+    }
+  } catch (error: any) {
+    message.error('密码重置失败：' + error.message)
   }
 }
 </script>
 
 <style scoped>
-#userRegisterPage {
+#userResetPasswordPage {
   background: white;
   max-width: 720px;
   padding: 24px;

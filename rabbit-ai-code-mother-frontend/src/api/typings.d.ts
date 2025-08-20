@@ -209,6 +209,7 @@ declare namespace API {
   type LoginUserVO = {
     id?: number
     userAccount?: string
+    userEmail?: string
     userName?: string
     userAvatar?: string
     userProfile?: string
@@ -254,6 +255,10 @@ declare namespace API {
     suggestions?: string[]
   }
 
+  type sendVerificationCodeParams = {
+    email: string
+  }
+
   type ServerSentEventString = true
 
   type serveStaticResourceParams = {
@@ -267,6 +272,7 @@ declare namespace API {
   type User = {
     id?: number
     userAccount?: string
+    userEmail?: string
     userPassword?: string
     userName?: string
     userAvatar?: string
@@ -281,6 +287,7 @@ declare namespace API {
   type UserAddRequest = {
     userName?: string
     userAccount?: string
+    userEmail?: string
     userAvatar?: string
     userProfile?: string
     userRole?: string
@@ -299,13 +306,23 @@ declare namespace API {
     id?: number
     userName?: string
     userAccount?: string
+    userEmail?: string
     userProfile?: string
     userRole?: string
   }
 
   type UserRegisterRequest = {
     userAccount?: string
+    userEmail?: string
+    code?: string
     userPassword?: string
+    checkPassword?: string
+  }
+
+  type UserResetPasswordRequest = {
+    userEmail?: string
+    code?: string
+    newPassword?: string
     checkPassword?: string
   }
 
@@ -320,6 +337,7 @@ declare namespace API {
   type UserVO = {
     id?: number
     userAccount?: string
+    userEmail?: string
     userName?: string
     userAvatar?: string
     userProfile?: string
