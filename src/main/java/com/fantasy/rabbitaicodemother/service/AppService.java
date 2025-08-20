@@ -76,4 +76,12 @@ public interface AppService extends IService<App> {
      * @return 应用查询条件
      */
     QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest);
+
+    /**
+     * 删除 AI 生成文件
+     *
+     * @param appId 应用 ID
+     * @param codeGenType 代码生成类型
+     */
+    void deleteGeneratedFiles(Long appId, String codeGenType, String deployKey);
 }

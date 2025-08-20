@@ -288,4 +288,50 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         // 删除应用
         return super.removeById(id);
     }
+
+    @Override
+    public void deleteGeneratedFiles(Long appId, String codeGenType, String deployKey) {
+        // 1. 参数校验
+        if (appId == null || appId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "应用 id 错误");
+        }
+        if (StrUtil.isBlank(codeGenType)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "代码生成类型不能为空");
+        }
+        CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenType);
+        if (codeGenTypeEnum == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "代码生成类型错误");
+        }
+        // 2. 删除生成文件目录
+        String sourceDirName = codeGenTypeEnum.getValue() + "_" + appId;
+        String codeOutputPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + sourceDirName;
+        File codeOutputDir = new File(codeOutputPath);
+        if (codeOutputDir.exists()) {
+            try {
+                FileUtil.del(codeOutputDir);
+                log.info("成功删除生成文件目录: {}", codeOutputPath);
+            } catch (Exception e) {
+                log.error("删除生成文件目录失败: {}, 错误信息: {}", codeOutputPath, e.getMessage());
+            }
+        } else {
+            log.info("生成文件目录不存在，无需删除: {}", codeOutputPath);
+        }
+        // 3. 删除部署文件目录
+        if (StrUtil.isBlank(deployKey)) {
+            log.info("部署标识为空，无需删除部署文件目录");
+            return;
+        }
+        String deployPath = AppConstant.CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
+        File deployDir = new File(deployPath);
+        if (deployDir.exists()) {
+            try {
+                FileUtil.del(deployDir);
+                log.info("成功删除部署文件目录: {}", deployPath);
+            } catch (Exception e) {
+                log.error("删除部署文件目录失败: {}, 错误信息: {}", deployPath, e.getMessage());
+            }
+        } else {
+            log.info("部署文件目录不存在，无需删除: {}", deployPath);
+        }
+    }
 }

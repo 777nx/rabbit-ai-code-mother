@@ -216,6 +216,8 @@ public class AppController {
         if (!oldApp.getUserId().equals(loginUser.getId()) && !UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole())) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
+        // 删除关联文件
+        appService.deleteGeneratedFiles(id, oldApp.getCodeGenType(), oldApp.getDeployKey());
         boolean result = appService.removeById(id);
         return ResultUtils.success(result);
     }
@@ -308,6 +310,8 @@ public class AppController {
         // 判断是否存在
         App oldApp = appService.getById(id);
         ThrowUtils.throwIf(oldApp == null, ErrorCode.NOT_FOUND_ERROR);
+        // 删除关联文件
+        appService.deleteGeneratedFiles(id, oldApp.getCodeGenType(), oldApp.getDeployKey());
         boolean result = appService.removeById(id);
         return ResultUtils.success(result);
     }
