@@ -33,11 +33,6 @@ public class WebScreenshotUtils {
         final int DEFAULT_WIDTH = 1600;
         final int DEFAULT_HEIGHT = 900;
         webDriver = initChromeDriver(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-
-        System.setProperty("wdm.timeout", "500");
-        System.setProperty("wdm.retryCount", "3");
-        // 设置国内镜像
-        System.setProperty("wdm.chromeDownloadUrl", "https://npmmirror.com/mirrors/chromedriver/");
     }
 
     /**
