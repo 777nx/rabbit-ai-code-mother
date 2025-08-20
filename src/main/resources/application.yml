@@ -52,6 +52,7 @@ langchain4j:
       max-tokens: 8192
       log-requests: true
       log-responses: true
+      max-retries: 3
     streaming-chat-model:
       base-url: https://api.deepseek.com
       api-key: <Your API Key>
@@ -59,6 +60,7 @@ langchain4j:
       max-tokens: 8192
       log-requests: true
       log-responses: true
+      max-retries: 3
     # 推理 AI 模型配置（用于复杂的推理任务）
     reasoning-streaming-chat-model:
       base-url: https://api.deepseek.com
