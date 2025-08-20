@@ -1,5 +1,6 @@
 package com.fantasy.rabbitaicodemother.ai;
 
+import com.fantasy.rabbitaicodemother.ai.guardrail.PromptSafetyInputGuardrail;
 import com.fantasy.rabbitaicodemother.ai.tools.*;
 import com.fantasy.rabbitaicodemother.exception.BusinessException;
 import com.fantasy.rabbitaicodemother.exception.ErrorCode;
@@ -111,6 +112,7 @@ public class AiCodeGeneratorServiceFactory {
                                 ToolExecutionResultMessage.from(toolExecutionRequest,
                                         "Error: there is no tool called " + toolExecutionRequest.name())
                         )
+                        .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
                         .build();
             }
             // HTML 和 多文件生成，使用流式对话模型
@@ -121,6 +123,7 @@ public class AiCodeGeneratorServiceFactory {
                         .chatModel(chatModel)
                         .streamingChatModel(openAiStreamingChatModel)
                         .chatMemory(chatMemory)
+                        .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
                         .build();
             }
             default ->
