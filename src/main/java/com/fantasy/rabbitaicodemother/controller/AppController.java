@@ -16,6 +16,8 @@ import com.fantasy.rabbitaicodemother.model.dto.app.*;
 import com.fantasy.rabbitaicodemother.model.entity.User;
 import com.fantasy.rabbitaicodemother.model.enums.CodeGenTypeEnum;
 import com.fantasy.rabbitaicodemother.model.vo.AppVO;
+import com.fantasy.rabbitaicodemother.ratelimter.annotation.RateLimit;
+import com.fantasy.rabbitaicodemother.ratelimter.enums.RateLimitType;
 import com.fantasy.rabbitaicodemother.service.ProjectDownloadService;
 import com.fantasy.rabbitaicodemother.service.UserService;
 import com.mybatisflex.core.paginate.Page;
@@ -64,6 +66,7 @@ public class AppController {
      * @return 生成结果流
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "AI 对话请求过于频繁，请稍后再试")
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
                                                        @RequestParam String message,
                                                        HttpServletRequest request) {
