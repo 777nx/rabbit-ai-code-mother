@@ -161,10 +161,15 @@ public class UserController {
      * 更新用户
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
+    // @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 判断是否是管理员，管理员可以更新任意用户，普通用户只能更新自己
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null || !loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE)) {
+            userUpdateRequest.setUserRole(UserConstant.DEFAULT_ROLE);
         }
         User user = new User();
         BeanUtil.copyProperties(userUpdateRequest, user);

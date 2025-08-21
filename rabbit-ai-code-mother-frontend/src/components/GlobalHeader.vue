@@ -32,6 +32,28 @@
               </a-space>
               <template #overlay>
                 <a-menu>
+                  <a-menu-item key="info" :disabled="editingName">
+                    <a-space>
+                      <a-avatar :src="loginUserStore.loginUser?.userAvatar">
+                        {{ loginUserStore.loginUser?.userName?.charAt(0) || 'U' }}
+                      </a-avatar>
+                      <div>
+                        <div v-if="!editingName" style="display: flex; align-items: center;">
+                          <span>{{ loginUserStore.loginUser.userName ?? '无名' }}</span>
+                          <EditOutlined @click="doEdit" style="margin-left: 8px; cursor: pointer;" />
+                        </div>
+                        <div v-else style="display: flex; align-items: center;">
+                          <a-input v-model:value="newUserName" style="width: 120px;" @pressEnter="saveUserName" />
+                          <SaveOutlined @click="saveUserName" style="margin-left: 8px; cursor: pointer;" />
+                          <CloseOutlined @click="cancelEdit" style="margin-left: 8px; cursor: pointer;" />
+                        </div>
+                        <div style="font-size: 12px; color: #999;">
+                          ID: {{ loginUserStore.loginUser.id }}
+                          <CopyOutlined @click="copyUserId" style="cursor: pointer; margin-left: 4px;" />
+                        </div>
+                      </div>
+                    </a-space>
+                  </a-menu-item>
                   <a-menu-item @click="doLogout">
                     <LogoutOutlined />
                     退出登录
@@ -54,8 +76,15 @@ import { computed, h, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
-import { LogoutOutlined, HomeOutlined } from '@ant-design/icons-vue'
-import { userLogout } from '@/api/userController.ts'
+import {
+  LogoutOutlined,
+  HomeOutlined,
+  CopyOutlined,
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
+} from '@ant-design/icons-vue'
+import { userLogout, updateUser } from '@/api/userController.ts'
 
 // 获取登录用户状态
 const loginUserStore = useLoginUserStore()
@@ -63,6 +92,9 @@ const loginUserStore = useLoginUserStore()
 const router = useRouter()
 // 当前选中菜单
 const selectedKeys = ref<string[]>(['/'])
+const editingName = ref(false)
+const newUserName = ref('')
+
 // 监听路由变化，更新当前选中菜单
 router.afterEach((to, from, next) => {
   selectedKeys.value = [to.path]
@@ -122,6 +154,44 @@ const handleMenuClick: MenuProps['onClick'] = (e) => {
   // 跳转到对应页面
   if (key.startsWith('/')) {
     router.push(key)
+  }
+}
+
+// 编辑用户名
+const doEdit = () => {
+  newUserName.value = loginUserStore.loginUser.userName ?? ''
+  editingName.value = true
+}
+
+// 保存用户名
+const saveUserName = async () => {
+  if (!newUserName.value.trim()) {
+    message.error('用户名不能为空')
+    return
+  }
+  const res = await updateUser({
+    userName: newUserName.value,
+    id: loginUserStore.loginUser.id,
+  })
+  if (res.data.code === 0) {
+    message.success('用户名更新成功')
+    await loginUserStore.fetchLoginUser()
+    editingName.value = false
+  } else {
+    message.error('用户名更新失败: ' + res.data.message)
+    editingName.value = false
+  }
+}
+
+const cancelEdit = () => {
+  editingName.value = false
+  newUserName.value = loginUserStore.loginUser.userName ?? ''
+}
+
+const copyUserId = () => {
+  if (loginUserStore.loginUser.id) {
+    navigator.clipboard.writeText(loginUserStore.loginUser.id.toString())
+    message.success('用户ID已复制')
   }
 }
 
