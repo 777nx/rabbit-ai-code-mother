@@ -39,7 +39,7 @@
 ## 参考配置
 
 1）vite.config.js 必须配置 base 路径以支持子路径部署、需要支持通过 @ 引入文件、不要配置端口号
-
+```
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
@@ -52,10 +52,10 @@ export default defineConfig({
     }
   }
 })
-
+```
 
 2）路由配置必须使用 hash 模式，避免服务器端路由配置问题
-
+```
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const router = createRouter({
@@ -64,10 +64,10 @@ const router = createRouter({
     // 路由配置
   ]
 })
-
+```
 
 3）package.json 文件参考：
-
+```
 {
   "scripts": {
     "dev": "vite",
@@ -82,7 +82,7 @@ const router = createRouter({
     "vite": "^4.4.5"
   }
 }
-
+```
 
 ## 网站内容要求
 

@@ -31,7 +31,7 @@ public class ToolManager {
      * 初始化工具映射
      */
     @PostConstruct
-    public void initTool() {
+    public void initTools() {
         for (BaseTool tool : tools) {
             toolMap.put(tool.getToolName(), tool);
             log.info("注册工具: {} -> {}", tool.getToolName(), tool.getDisplayName());

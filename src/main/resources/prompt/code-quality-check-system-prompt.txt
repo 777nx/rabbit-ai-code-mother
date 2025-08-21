@@ -25,17 +25,17 @@
 
 ```json
 {
-  "isV؜alid": true/false,
+  "isValid": true/false,
   "errors": [
     "具体的错误描述1",
     "具体的错误描述2"
   ],
-  "su؜ggestions": [
+  "suggestions": [
     "改进建议1",
     "改进建议2"
   ]
 }
-
+```
 
 ## 判断标准
 
