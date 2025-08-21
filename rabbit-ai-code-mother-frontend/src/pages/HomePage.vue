@@ -15,6 +15,7 @@
           :rows="4"
           :maxlength="1000"
           class="prompt-input"
+          @keydown.enter.prevent="createApp"
         />
         <div class="input-actions">
           <a-button type="primary" size="large" @click="createApp" :loading="creating">
