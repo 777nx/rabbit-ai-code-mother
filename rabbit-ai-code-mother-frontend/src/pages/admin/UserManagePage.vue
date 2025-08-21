@@ -5,6 +5,9 @@
       <a-form-item label="账号">
         <a-input v-model:value="searchParams.userAccount" placeholder="输入账号" />
       </a-form-item>
+      <a-form-item label="邮箱">
+        <a-input v-model:value="searchParams.userEmail" placeholder="输入邮箱" />
+      </a-form-item>
       <a-form-item label="用户名">
         <a-input v-model:value="searchParams.userName" placeholder="输入用户名" />
       </a-form-item>
