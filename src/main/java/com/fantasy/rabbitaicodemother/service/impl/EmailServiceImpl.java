@@ -87,13 +87,12 @@ public class EmailServiceImpl implements EmailService {
         if (cachedCode == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码已过期或未发送");
         }
-        if (cachedCode.equals(code)) {
-            // 验证成功后删除验证码
-            redisTemplate.delete(codeKey);
-            return true;
-        } else {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码不正确");
+        if (!cachedCode.equals(code)) {
+            return false;
         }
+        // 验证成功后删除验证码
+        redisTemplate.delete(codeKey);
+        return true;
     }
 
     @Override
